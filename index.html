@@ -1,0 +1,112 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Clicker Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Очки: <span id="score">0</span></h1>
+<button id="clickBtn">ЖМИ</button>
+
+<h2>Улучшения</h2>
+
+<button id="upgradeClick">
+  Улучшить клик (+1) -- цена: <span id="clickCost">10</span>
+</button>
+
+<button id="upgradeAuto">
+  Авто-клик (+1/сек) -- цена: <span id="autoCost">50</span>
+</button>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="app.js"></script>
+</body>
+</html><style>body {
+  text-align: center;
+  font-family: sans-serif;
+  background: #121212;
+  color: white;
+}
+
+button {
+  display: block;
+  margin: 10px auto;
+  font-size: 18px;
+  padding: 15px;
+  border-radius: 10px;
+}</style><script>let tg = window.Telegram.WebApp;
+tg.expand();
+
+// --- состояние игры ---
+let score = 0;
+let clickPower = 1;
+let autoPower = 0;
+
+let clickCost = 10;
+let autoCost = 50;
+
+// --- элементы ---
+const scoreEl = document.getElementById("score");
+const clickBtn = document.getElementById("clickBtn");
+
+const upgradeClickBtn = document.getElementById("upgradeClick");
+const upgradeAutoBtn = document.getElementById("upgradeAuto");
+
+const clickCostEl = document.getElementById("clickCost");
+const autoCostEl = document.getElementById("autoCost");
+
+// --- обновление UI ---
+function updateUI() {
+  scoreEl.textContent = Math.floor(score);
+  clickCostEl.textContent = clickCost;
+  autoCostEl.textContent = autoCost;
+}
+
+// --- клик ---
+clickBtn.onclick = () => {
+  score += clickPower;
+  updateUI();
+};
+
+// --- улучшение клика ---
+upgradeClickBtn.onclick = () => {
+  if (score >= clickCost) {
+    score -= clickCost;
+    clickPower++;
+    clickCost = Math.floor(clickCost * 1.5);
+    updateUI();
+  }
+};
+
+// --- авто-клик ---
+upgradeAutoBtn.onclick = () => {
+  if (score >= autoCost) {
+    score -= autoCost;
+    autoPower++;
+    autoCost = Math.floor(autoCost * 1.7);
+    updateUI();
+  }
+};
+
+// --- пассивный доход ---
+setInterval(() => {
+  score += autoPower;
+  updateUI();
+}, 1000);
+
+// --- кнопка Telegram ---
+tg.MainButton.setText("Сохранить результат");
+tg.MainButton.show();
+
+tg.MainButton.onClick(() => {
+  tg.sendData(JSON.stringify({
+    score,
+    clickPower,
+    autoPower
+  }));
+});
+
+// старт
+updateUI();</script>
